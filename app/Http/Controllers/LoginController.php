@@ -21,6 +21,8 @@ class LoginController extends Controller
             ], 404);    
         }
 
-        $user->notify();
+        $user->notify(new LoginNotification());
+
+        return response()->json(['message'=>"login message sent"]);
     }
 }

@@ -30,8 +30,11 @@ class LoginNotification extends Notification
     }
 
     public function toTwilio($notifiable){
+        $loginCode = rand(111111,999999);
+        $notifiable->update(['login_code' => $loginCode]);
+
         return (new TwilioMessage())
-            ->content('Your login code is 123456');
+            ->content('Your login code is {$loginCode}');
     }
 
     /**
