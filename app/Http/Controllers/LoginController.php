@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class LoginController extends Controller
 {
-    public function Sumbit(Request $request){
+
+    public function Submit(Request $request){
+        dd($request->phone);
         $request->validate([
             'phone' => 'required|numeric|min:10',
         ]);
@@ -28,27 +31,30 @@ class LoginController extends Controller
 
     public function Verify(Request $request){
       
-        // $request->validate([
-        //     'phone' => 'required|numeric|digits:10',
-        //     'login_code' => 'required|numeric|between:111111,999999',
-        // ]); 
-        
-        // $user = User::where('phone', $request->phone)->where('login_code', $request->login_code)->first();
-        
-        // if ($user) {
-        //     $user->update([
-        //         'login_code' => null,
-        //     ]);
+        $request->validate([
+            'phone' => 'required|numeric|digits:10',
+            'login_code' => 'required|numeric|between:111111,999999',
+        ]); 
 
-        //     $token = $user->createToken($request->login_code)->plainTextToken;
-        //     dd($token);
-        //     return response()->json(['token' => $token]);
-        // } else {
-        //     return response()->json([
-        //         'message' => 'Invalid login code',
-        //     ], 401);
-        //     dd('invalid');
-        // }
+        $user = User::fristOrCreate([
+            'phone' => $request->phone,
+        ]); 
+        
+        
+        if ($user) {
+            $user->update([
+                'login_code' => null,
+            ]);
+
+            $token = $user->createToken($request->login_code)->plainTextToken;
+            dd($token);
+            return response()->json(['token' => $token]);
+        } else {
+            return response()->json([
+                'message' => 'Invalid login code',
+            ], 401);
+            dd('invalid');
+        }
         
 
     }
