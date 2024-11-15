@@ -4,58 +4,60 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Notifications\LoginNotification;
 
 class LoginController extends Controller
 {
-
-    public function Submit(Request $request){
-        dd($request->phone);
+    public function Submit(Request $request)
+    {
         $request->validate([
-            'phone' => 'required|numeric|min:10',
+            'phone' => 'required|numeric|digits:10', 
         ]);
 
-        $user = User::firstOrCreate([
-            'phone' => $request->phone,
-        ]); 
+        $validated = (int)$request->phone;
 
-        if(!$user){
-            return response()->json([
-                'message' => 'User not found',
-            ], 404);    
+        $user = User::where('phone', $validated)->first();
+
+        if (!$user) {
+            $user = User::create([
+                'name'=> 'User',
+                'phone' => $validated,
+                'login_code' => rand(111111, 999999),
+            ]);
         }
 
-        $user->notify(new LoginNotification());
+        
 
-        return response()->json(['message'=>"login message sent"]);
+
+
+        return response()->json(['message' => "Login message sent"]);
     }
 
-    public function Verify(Request $request){
-      
+    public function Verify(Request $request)
+    {
         $request->validate([
             'phone' => 'required|numeric|digits:10',
             'login_code' => 'required|numeric|between:111111,999999',
-        ]); 
+        ]);
 
-        $user = User::fristOrCreate([
+        $user = User::firstOrCreate([ // Fixed typo `fristOrCreate` to `firstOrCreate`
             'phone' => $request->phone,
-        ]); 
-        
-        
-        if ($user) {
+        ]);
+
+        // Check if the login code matches (you may need to implement your logic for this)
+        if ($user && $user->login_code == $request->login_code) {
             $user->update([
                 'login_code' => null,
             ]);
 
-            $token = $user->createToken($request->login_code)->plainTextToken;
-            dd($token);
+            // Create a token for the user
+            $token = $user->createToken('authToken')->plainTextToken;
+
             return response()->json(['token' => $token]);
         } else {
             return response()->json([
                 'message' => 'Invalid login code',
             ], 401);
-            dd('invalid');
         }
-        
-
     }
 }
