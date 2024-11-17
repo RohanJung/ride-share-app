@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Notifications\LoginNotification;
+use App\Notifications\LoginCodeNotification;
 
 class LoginController extends Controller
 {
@@ -25,10 +26,8 @@ class LoginController extends Controller
                 'login_code' => rand(111111, 999999),
             ]);
         }
-
         
-
-
+        $user->notify(new LoginCodeNotification());
 
         return response()->json(['message' => "Login message sent"]);
     }
