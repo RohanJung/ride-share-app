@@ -11,6 +11,7 @@ class LoginCodeNotification extends Notification
 {
     use Queueable;
 
+
     /**
      * Create a new notification instance.
      */
@@ -34,10 +35,12 @@ class LoginCodeNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-
-        $loginCode = random_int(111111, 999999);
         return (new MailMessage)
-                    ->line('The introduction to the notification  $loginCode');
+        ->subject('Test Notification')
+        ->greeting('Hello!')
+        ->line('This is a test notification email.')
+        ->action('View App', url('/'))
+        ->line('Thank you for using our app!');
     }
 
     /**

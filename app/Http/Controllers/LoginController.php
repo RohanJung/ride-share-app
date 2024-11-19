@@ -6,24 +6,24 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Notifications\LoginNotification;
 use App\Notifications\LoginCodeNotification;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\StatusUpdate;
 
 class LoginController extends Controller
 {
     public function Submit(Request $request)
     {
-        $request->validate([
-            'phone' => 'required|numeric|digits:10', 
-        ]);
 
         $validated = (int)$request->phone;
 
         $user = User::where('phone', $validated)->first();
 
+        $loginCode = random_int(111111, 999999);
         if (!$user) {
             $user = User::create([
                 'name'=> 'User',
                 'phone' => $validated,
-                'login_code' => rand(111111, 999999),
+                'login_code' => $loginCode, 
             ]);
         }
         
@@ -58,5 +58,14 @@ class LoginController extends Controller
                 'message' => 'Invalid login code',
             ], 401);
         }
+    }
+
+    public function test()
+    {
+        $user = User::find(1);
+        Notification::send($user, new StatusUpdate());
+
+
+        return response()->json(['message' => "Login message sent"]);
     }
 }
