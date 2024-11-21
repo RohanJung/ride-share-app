@@ -39,17 +39,15 @@ class LoginController extends Controller
             'login_code' => 'required|numeric|between:111111,999999',
         ]);
 
-        $user = User::firstOrCreate([ // Fixed typo `fristOrCreate` to `firstOrCreate`
+        $user = User::firstOrCreate([ 
             'phone' => $request->phone,
         ]);
 
-        // Check if the login code matches (you may need to implement your logic for this)
         if ($user && $user->login_code == $request->login_code) {
             $user->update([
                 'login_code' => null,
             ]);
 
-            // Create a token for the user
             $token = $user->createToken('authToken')->plainTextToken;
 
             return response()->json(['token' => $token]);
@@ -60,12 +58,4 @@ class LoginController extends Controller
         }
     }
 
-    public function test()
-    {
-        $user = User::find(1);
-        Notification::send($user, new StatusUpdate());
-
-
-        return response()->json(['message' => "Login message sent"]);
-    }
 }
